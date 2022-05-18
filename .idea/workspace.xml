@@ -3,9 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="b0bc0ce8-0268-4bf7-85be-5a441df2b856" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/../VPNAboba/vpnaboba/src/components/NavBar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.editorconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.eslintrc" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../nodeex/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +66,7 @@
       <updated>1652701999030</updated>
       <workItem from="1652702000107" duration="190000" />
       <workItem from="1652702196078" duration="684000" />
-      <workItem from="1652702928930" duration="17852000" />
+      <workItem from="1652702928930" duration="18118000" />
     </task>
     <servers />
   </component>
