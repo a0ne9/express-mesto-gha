@@ -9,6 +9,18 @@ module.exports.createUser = (req, res) => {
       .send({ message: "Имя, о себе или аватар введены некорректно!" });
   }
 
+  if(name.length <= 3 || name.length >= 30) {
+    return res
+      .status(400)
+      .send({ message: "Имя введено некорректно!" });
+  }
+
+  if(about.length <= 3 || about.length >= 30) {
+    return res
+      .status(400)
+      .send({ message: "о себе введено некорректно!" });
+  }
+
   User.create({ name, about, avatar })
     .then((user) => {
       res.status(201).send(user);
