@@ -6,15 +6,21 @@ module.exports.createCard = (req, res) => {
   if (!name || !link) {
     return res
       .status(400)
-      .send({ message: "Название или описание введены некорректно!" });
+      .send({ message: "Название или описание не введены!" });
   }
   Card.create({ name, link, owner })
     .then((card) => {
       res.status(201).send(card);
     })
-    .catch((err) =>
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` })
-    );
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res
+          .status(400)
+          .send({ message: "Название или описание введены неверно!" });
+        return;
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+    });
 };
 
 module.exports.getCards = (req, res) => {
@@ -37,36 +43,49 @@ module.exports.deleteCard = (req, res) => {
       }
       res.send(card);
     })
-    .catch((err) =>
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` })
-    );
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Некорректный ID" });
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+    });
 };
 
 module.exports.likeCard = (req, res) =>
-
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
     { new: true }
-  ).then(() => {
-    if (!req.params.id) {
-      res.status(404).send({message: "Передан несуществующий _id карточки!"})
-    }
-    res.status(200).send({ message: "Лайк поставлен!" })
-    }).catch((err) => {
-    res.status(500).send({ message: `Произошла ошибка ${err.message}` });
-  });
+  )
+    .then((card) => {
+      if (!card) {
+        res
+          .status(404)
+          .send({ message: "Передан несуществующий _id карточки!" });
+      }
+      res.status(200).send({ message: "Лайк поставлен!" });
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Некорректный ID" });
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+    });
 
 module.exports.dislikeCard = (req, res) =>
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true }
-  ).then(() => {
-    if (!req.params.id) {
-      res.status(404).send({message: "Передан несуществующий _id карточки!"})
-    }
-    res.status(200).send({ message: "Лайк убран!" })
-    }).catch((err) => {
-    res.status(500).send({ message: `Произошла ошибка ${err.message}` });
-  });
+  )
+    .then(() => {
+      if (!req.params.id) {
+        res
+          .status(404)
+          .send({ message: "Передан несуществующий _id карточки!" });
+      }
+      res.status(200).send({ message: "Лайк убран!" });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+    });
