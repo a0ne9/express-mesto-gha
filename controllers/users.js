@@ -16,7 +16,7 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: "Имя или о себе введены неверно!" });
-        return
+        return;
       }
       res.status(500).send({
         message: `Произошла ошибка ${err.name} с текстом ${err.message} `,
@@ -36,10 +36,14 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserByID = (req, res) => {
   const id = req.params.id;
+  if (!id) {
+    res.status(400).send("ID не был передан!");
+  }
   User.findById(id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "Пользователь не найден!" });
+        res.status(404).send({ message: "Пользователь не найден!" });
+        return;
       }
       res.status(200).send(user);
     })
@@ -56,16 +60,25 @@ module.exports.updateUser = (req, res) => {
       .status(400)
       .send({ message: "Имя или о себе введены некорректно!" });
   }
-  User.findByIdAndUpdate(id, { name, about })
+  User.findByIdAndUpdate(
+    id,
+    { name, about },
+    { new: true, runValidators: true }
+  )
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "Пользователь не найден!" });
+        res.status(404).send({ message: "Пользователь не найден!" });
+        return;
       }
-      res.status(200).send(user);
+      res.status(201).send({ data: user });
     })
-    .catch((err) =>
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` })
-    );
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: "Имя или о себе введены неверно!" });
+        return;
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+    });
 };
 
 module.exports.updateAvatar = (req, res) => {
@@ -74,7 +87,7 @@ module.exports.updateAvatar = (req, res) => {
   if (!avatar) {
     return res.status(400).send({ message: "Аватар введен некорректно!" });
   }
-  User.findByIdAndUpdate(id, { avatar })
+  User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         return res.status(404).send({ message: "Пользователь не найден!" });
