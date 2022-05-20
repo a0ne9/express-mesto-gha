@@ -47,9 +47,13 @@ module.exports.getUserByID = (req, res) => {
       }
       res.status(200).send(user);
     })
-    .catch((err) =>
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` })
-    );
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Некорректный ID" });
+        return;
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+    });
 };
 
 module.exports.updateUser = (req, res) => {
@@ -70,7 +74,7 @@ module.exports.updateUser = (req, res) => {
         res.status(404).send({ message: "Пользователь не найден!" });
         return;
       }
-      res.status(201).send({ data: user });
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
