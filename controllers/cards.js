@@ -39,13 +39,15 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(id)
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена!" });
+        res.status(404).send({ message: "Карточка не найдена!" });
+        return;
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(400).send({ message: "Некорректный ID" });
+        return;
       }
       res.status(500).send({ message: `Произошла ошибка ${err.message}` });
     });
@@ -62,12 +64,14 @@ module.exports.likeCard = (req, res) =>
         res
           .status(404)
           .send({ message: "Передан несуществующий _id карточки!" });
+        return;
       }
       res.status(200).send({ message: "Лайк поставлен!" });
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(400).send({ message: "Некорректный ID" });
+        return;
       }
       res.status(500).send({ message: `Произошла ошибка ${err.message}` });
     });
@@ -78,14 +82,19 @@ module.exports.dislikeCard = (req, res) =>
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then(() => {
-      if (!req.params.id) {
+    .then((card) => {
+      if (!card) {
         res
           .status(404)
           .send({ message: "Передан несуществующий _id карточки!" });
+        return;
       }
       res.status(200).send({ message: "Лайк убран!" });
     })
     .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Некорректный ID" });
+        return;
+      }
       res.status(500).send({ message: `Произошла ошибка ${err.message}` });
     });
