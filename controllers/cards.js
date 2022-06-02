@@ -31,15 +31,11 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  console.log(req.params.id);
   Card.findById(req.params.id)
     .then((card) => {
-      console.log(card)
-      console.log(req.user._id);
-      console.log(card.owner);
       if (!card) {
         res.status(404).send({ message: 'Нет карточки с таким  ID' });
-        return
+        return;
       }
       if (req.user._id.toString() === card.owner.toString()) {
         Card.findByIdAndRemove(req.params.id)
@@ -51,11 +47,14 @@ module.exports.deleteCard = (req, res, next) => {
               res.status(400).send({ message: 'Некорректный ID' });
               return;
             }
-            next(err);
+            res.status(404).send({ message: 'Нет карточки с таким  ID' });
+            return;
           });
         return;
       }
-      res.status(403).send({ message: 'Вы не являетесь автором этой карточки!' });
+      res
+        .status(403)
+        .send({ message: 'Вы не являетесь автором этой карточки!' });
     })
     .catch((err) => next(err));
 };
