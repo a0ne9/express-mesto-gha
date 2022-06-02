@@ -15,7 +15,7 @@ router.delete(
       id: Joi.string().required().length(24),
     }),
   }),
-  deleteCard
+  deleteCard,
 );
 
 router.put(
@@ -25,7 +25,7 @@ router.put(
       id: Joi.string().required().length(24),
     }),
   }),
-  likeCard
+  likeCard,
 );
 
 router.delete(
@@ -35,7 +35,7 @@ router.delete(
       id: Joi.string().required().length(24),
     }),
   }),
-  dislikeCard
+  dislikeCard,
 );
 
 router.get('/cards', getCards);
@@ -48,14 +48,14 @@ router.post(
       link: Joi.string()
         .required()
         .pattern(
-          new RegExp(
-            /(http|www|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/
-          )
+
+            /(http|www|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:~+#-]*[\w@?^=%&~+#-])/,
+
         ),
       owner: Joi.object(),
     }),
   }),
-  createCard
+  createCard,
 );
 
 module.exports.CardsRouter = router;

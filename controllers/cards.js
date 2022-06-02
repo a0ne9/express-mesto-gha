@@ -40,13 +40,14 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findOne({ id })
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'карточка не найдена' });
+        res.status(404).send({ message: 'карточка не найдена' });
+        return;
       }
-      const  user  = req.user;
-      const  owner  = card.owner;
-      console.log('user : ', user)
-      console.log('owner : ', owner )
-      console.log('user === owner', req.user._id === card.owner)
+      const user = req.user;
+      const owner = card.owner;
+      console.log('user : ', user);
+      console.log('owner : ', owner);
+      console.log('user === owner', req.user._id === card.owner);
 
       if (!user === owner) {
         res
@@ -71,7 +72,7 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -94,7 +95,7 @@ module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {

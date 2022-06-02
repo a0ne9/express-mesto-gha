@@ -1,6 +1,6 @@
-const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { createToken, verifyToken } = require('../utils/jwt');
+const User = require('../models/user');
+const { createToken } = require('../utils/jwt');
 
 module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
@@ -142,9 +142,10 @@ module.exports.getExactUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res
+        res
           .status(404)
           .send({ message: 'Пользователь с данным _id не найден!' });
+        return;
       }
       res.status(200).send(user);
     })

@@ -17,7 +17,7 @@ router.get(
       id: Joi.string().required().hex().length(24),
     }),
   }),
-  getUserByID
+  getUserByID,
 );
 
 router.get('/users', getUsers);
@@ -30,7 +30,7 @@ router.patch(
       about: Joi.string().required().min(2).max(30),
     }),
   }),
-  updateUser
+  updateUser,
 );
 
 router.patch(
@@ -40,13 +40,12 @@ router.patch(
       avatar: Joi.string()
         .required()
         .pattern(
-          new RegExp(
-            /(http|www|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/
-          )
+
+            /(http|www|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:~+#-]*[\w@?^=%&~+#-])/,
         ),
     }),
   }),
-  updateAvatar
+  updateAvatar,
 );
 
 module.exports.UserRouter = router;
