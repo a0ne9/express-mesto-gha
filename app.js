@@ -52,13 +52,13 @@ app.use(isAuthorised);
 app.use('/', UserRouter);
 app.use('/', CardsRouter);
 
-app.use('*', (req, res) => {
+app.use('*', () => {
   throw new NotFoundError('Страница не найдена!');
 });
 
 app.use(errors());
 
-app.use((err, req, res, _next) => {
+app.use((err, req, res) => {
   if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
     return;
