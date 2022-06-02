@@ -64,7 +64,7 @@ app.use((err, req, res, _next) => {
     return;
   }
 
-  res.status(500).send({ message: 'Ошибка на сервере' });
+  res.status(500).send({ message: err.message });
 });
 
 app.listen(PORT);

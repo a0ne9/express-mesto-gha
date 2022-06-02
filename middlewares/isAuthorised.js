@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const JWT_SECRET_KEY = 'qwerty';
-const AuthError = require('../errors/AuthError');
+const AuthError = require('../errors/AuthError')
 
 const isAuthorised = (req, res, next) => {
   const auth = req.headers.authorization;
@@ -11,14 +11,13 @@ const isAuthorised = (req, res, next) => {
   }
   const token = auth.replace('Bearer ', '');
 
-  let decoded;
+  let payload;
   try {
-    decoded = jwt.verify(token, JWT_SECRET_KEY);
+    payload = jwt.verify(token, JWT_SECRET_KEY);
   } catch {
     throw new AuthError('Требуется авторизация!');
-    return;
   }
-  req.user = payload;
+  req.user = payload
   next();
 };
 module.exports = { isAuthorised };
