@@ -38,12 +38,13 @@ module.exports.deleteCard = (req, res, next) => {
       console.log(req.user._id);
       console.log(card.owner);
       if (!card) {
-        res.status(404).send({ message: 'no card' });
+        res.status(404).send({ message: 'Нет карточки с таким  ID' });
+        return
       }
       if (req.user._id.toString() === card.owner.toString()) {
         Card.findByIdAndRemove(req.params.id)
           .then(() => {
-            res.status(200).send({ message: 'card deleted' });
+            res.status(200).send({ message: 'Карточка удалена!' });
           })
           .catch((err) => {
             if (err.name === 'CastError') {
@@ -54,7 +55,7 @@ module.exports.deleteCard = (req, res, next) => {
           });
         return;
       }
-      res.status(403).send({ message: 'no rights' });
+      res.status(403).send({ message: 'Вы не являетесь автором этой карточки!' });
     })
     .catch((err) => next(err));
 };
