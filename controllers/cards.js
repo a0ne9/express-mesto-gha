@@ -43,10 +43,10 @@ module.exports.deleteCard = (req, res, next) => {
           .catch((err) => {
             if (err.name === 'CastError') {
               next(new BadRequestError('Некорректный ID'));
+              return
             }
-            throw new NotFoundError('Нет карточки с таким  ID');
+            next(err);
           });
-        next();
       }
       throw new ForbiddenError('Вы не являетесь автором этой карточки!');
     })
