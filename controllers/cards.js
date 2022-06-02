@@ -45,18 +45,18 @@ module.exports.deleteCard = (req, res, next) => {
       }
       const user = req.user._id.toString();
       const owner = card.owner.toString();
+      console.log('user : ', user);
+      console.log('owner : ', owner);
+      console.log('user === owner', user === owner);
+
       if (user === owner) {
-        Card.findByIdAndRemove(card.id)
-          .then(() => {
-            res.status(200).send({ message: 'Карточка удалена!' });
-          })
-          .catch((err) => {
-            res
-              .status(403)
-              .send({ message: 'Вы не являетесь создателем карточки!' });
-            next;
-          });
+        Card.findByIdAndRemove(card.id).then(() => {
+          res.status(200).send({ message: 'Карточка удалена!' });
+        });
       }
+
+      res.status(403).send({ message: 'Вы не являетесь создателем карточки!' });
+      return;
     })
     .catch((err) => {
       if (err.name === 'CastError') {
