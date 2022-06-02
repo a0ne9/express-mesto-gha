@@ -39,9 +39,11 @@ module.exports.createUser = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequestError('Имя или о себе введены неверно!'));
+          return;
         }
         if (err.code === 11000) {
           next(new DuplicateError('Почта занята!'));
+          return;
         }
         next(err);
       });

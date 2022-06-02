@@ -7,15 +7,16 @@ const isAuthorised = (req, res, next) => {
   const auth = req.headers.authorization;
 
   if (!auth) {
-    throw new AuthError('Требуется авторизация!');
+    throw new AuthError('Требуется авторизация1!');
   }
+
   const token = auth.replace('Bearer ', '');
 
   let payload;
   try {
     payload = jwt.verify(token, JWT_SECRET_KEY);
   } catch (err) {
-    throw new AuthError('Требуется авторизация!');
+    throw new AuthError('Требуется авторизация!2');
   }
   req.user = payload;
   next();
