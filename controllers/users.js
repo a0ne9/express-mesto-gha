@@ -22,7 +22,7 @@ module.exports.createUser = (req, res) => {
         if (err.code === 11000) {
           res.status(409).send({ message: 'Почта занята!' });
         }
-        next(err);
+        res.status(500).send({ message: err.message });
       });
   });
 };
@@ -114,7 +114,7 @@ module.exports.login = (req, res) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: 'Почта или пароль введены неверно!' });
+        res.status(401).send({ message: 'Почта или пароль введены неверно!' });
         return;
       }
       return { matched: bcrypt.compare(password, user.password), user };
