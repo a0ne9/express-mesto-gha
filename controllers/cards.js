@@ -39,6 +39,9 @@ module.exports.deleteCard = (req, res, next) => {
 
   Card.findOne({ id })
     .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'карточка не найдена' });
+      }
       const { user } = req.user._id;
       const { owner } = card.owner;
       if (!user === owner) {
@@ -55,9 +58,6 @@ module.exports.deleteCard = (req, res, next) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Некорректный ID' });
         return;
-      }
-      if (err.code === 404 ) {
-        res.status(404).send({ message: 'Такой карточки не существует!' });
       }
       next(err);
     });
