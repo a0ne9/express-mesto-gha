@@ -43,7 +43,7 @@ module.exports.deleteCard = (req, res, next) => {
       const { owner } = card.owner;
       if (!user === owner) {
         res
-          .status(401)
+          .status(403)
           .send({ message: 'Вы не являетесь создателем карточки!' });
         return;
       }
@@ -56,7 +56,7 @@ module.exports.deleteCard = (req, res, next) => {
         res.status(400).send({ message: 'Некорректный ID' });
         return;
       }
-      if (err.name === 'NotFoundError') {
+      if (err.code === 404 ) {
         res.status(404).send({ message: 'Такой карточки не существует!' });
       }
       next(err);
