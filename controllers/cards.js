@@ -45,15 +45,18 @@ module.exports.deleteCard = (req, res, next) => {
       }
       const user = req.user._id.toString();
       const owner = card.owner.toString();
-      if (!user === owner) {
-        res
-          .status(403)
-          .send({ message: 'Вы не являетесь создателем карточки!' });
-        return;
+      if (user === owner) {
+        Card.findByIdAndRemove(card.id)
+          .then(() => {
+            res.status(200).send({ message: 'Карточка удалена!' });
+          })
+          .catch((err) => {
+            res
+              .status(403)
+              .send({ message: 'Вы не являетесь создателем карточки!' });
+            next;
+          });
       }
-      Card.findByIdAndRemove(card.id).then(() => {
-        res.status(200).send({ message: 'Карточка удалена!' });
-      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -68,7 +71,7 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
     .then((card) => {
       if (!card) {
@@ -91,7 +94,7 @@ module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
     .then((card) => {
       if (!card) {

@@ -12,7 +12,7 @@ router.delete(
   '/cards/:id',
   celebrate({
     params: Joi.object().keys({
-      id: Joi.string().required(),
+      id: Joi.string().required().alphanum().length(24),
     }),
   }),
   deleteCard,
