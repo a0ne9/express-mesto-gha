@@ -35,22 +35,23 @@ module.exports.deleteCard = (req, res, next) => {
       if (!card) {
         throw new NotFoundError('Нет карточки с таким  ID');
       }
-      if (req.user._id.toString() === card.owner.toString()) {
+      if (req.user.id.toString() === card.owner.toString()) {
         Card.findByIdAndRemove(req.params.id)
           .then(() => {
             res.status(200).send({ message: 'Карточка удалена!' });
           })
-          .catch((err) => {
-            if (err.name === 'CastError') {
-              next(new BadRequestError('Некорректный ID'));
-              return;
-            }
-            next(err);
+          .catch(() => {
+            throw new ForbiddenError('Вы не являетесь автором этой карточки!');
           });
       }
-      throw new ForbiddenError('Вы не являетесь автором этой карточки!');
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Некорректный ID'));
+        return;
+      }
+      next(err);
+    });
 };
 
 module.exports.likeCard = (req, res, next) => {
