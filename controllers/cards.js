@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
   if (!name || !link) {
@@ -22,7 +22,7 @@ module.exports.createCard = (req, res) => {
     });
 };
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.status(200).send(cards);
@@ -30,7 +30,7 @@ module.exports.getCards = (req, res) => {
     .catch((err) => next(err));
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   const { id } = req.params;
   if (!id) {
     res.status(400).send({ message: 'ID не был передан!' });
@@ -56,11 +56,14 @@ module.exports.deleteCard = (req, res) => {
         res.status(400).send({ message: 'Некорректный ID' });
         return;
       }
-      next(err)
+      if (err.name === 'NotFoundError') {
+        res.status(404).send({ message: 'Такой карточки не существует!' });
+      }
+      next(err);
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
@@ -80,10 +83,10 @@ module.exports.likeCard = (req, res) => {
         res.status(400).send({ message: 'Некорректный ID' });
         return;
       }
-      next(err)
+      next(err);
     });
 };
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
@@ -103,6 +106,6 @@ module.exports.dislikeCard = (req, res) => {
         res.status(400).send({ message: 'Некорректный ID' });
         return;
       }
-      next(err)
+      next(err);
     });
 };

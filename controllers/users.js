@@ -2,7 +2,7 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const { createToken, verifyToken } = require('../utils/jwt');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
   if (!email || !password) {
@@ -22,12 +22,12 @@ module.exports.createUser = (req, res) => {
         if (err.code === 11000) {
           res.status(409).send({ message: 'Почта занята!' });
         }
-        res.status(500).send({ message: err.message });
+        next(err)
       });
   });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send(users);
@@ -35,7 +35,7 @@ module.exports.getUsers = (req, res) => {
     .catch((err) => next(err));
 };
 
-module.exports.getUserByID = (req, res) => {
+module.exports.getUserByID = (req, res, next) => {
   const id = req.params.id;
   if (!id) {
     res.status(400).send({ message: 'ID не был передан!' });
@@ -57,7 +57,7 @@ module.exports.getUserByID = (req, res) => {
     });
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const id = req.user._id;
   if (!name || !about) {
@@ -85,7 +85,7 @@ module.exports.updateUser = (req, res) => {
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const id = req.user._id;
   if (!avatar) {
@@ -103,7 +103,7 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => next(err));
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -132,7 +132,7 @@ module.exports.login = (req, res) => {
     .catch((err) => next(err));
 };
 
-module.exports.getExactUser = (req, res) => {
+module.exports.getExactUser = (req, res, next) => {
   User.findOne(req.params.id)
     .then((user) => {
       if (!user) {
