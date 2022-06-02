@@ -41,7 +41,7 @@ module.exports.deleteCard = (req, res, next) => {
         res.status(404).send({ message: 'no card' });
       }
       if (req.user._id.toString() === card.owner.toString()) {
-        Card.findByIdAndRemove(req.params.cardId)
+        Card.findByIdAndRemove(req.params.id)
           .then(() => {
             res.status(200).send({ message: 'card deleted' });
           })
