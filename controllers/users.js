@@ -57,7 +57,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUserByID = (req, res, next) => {
-  const id = req.params.id;
+  const { id } = req.params.id;
   if (!id) {
     throw new BadRequestError('ID не был передан!');
   }
