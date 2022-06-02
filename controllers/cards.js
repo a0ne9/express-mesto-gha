@@ -40,18 +40,18 @@ module.exports.deleteCard = (req, res, next) => {
           .then(() => {
             res.status(200).send({ message: 'Карточка удалена!' });
           })
-          .catch(() => {
-            throw new ForbiddenError('Вы не являетесь автором этой карточки!');
+          .catch((err) => {
+            if (err.name === 'CastError') {
+              next(new BadRequestError('Некорректный ID'));
+              return;
+            }
+            next(err);
           });
-      }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Некорректный ID'));
         return;
       }
-      next(err);
-    });
+      throw new ForbiddenError('Вы не являетесь автором этой карточки!');
+    })
+    .catch((err) => next(err));
 };
 
 module.exports.likeCard = (req, res, next) => {
