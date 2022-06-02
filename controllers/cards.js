@@ -42,8 +42,12 @@ module.exports.deleteCard = (req, res, next) => {
       if (!card) {
         return res.status(404).send({ message: 'карточка не найдена' });
       }
-      const { user } = req.user._id;
-      const { owner } = card.owner;
+      const  user  = req.user;
+      const  owner  = card.owner;
+      console.log('user : ', user)
+      console.log('owner : ', owner )
+      console.log('user === owner', req.user._id === card.owner)
+
       if (!user === owner) {
         res
           .status(403)
