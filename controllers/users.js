@@ -12,7 +12,13 @@ module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10).then((hash) => {
     User.create({ name, about, avatar, email, password: hash })
       .then((user) => {
-        res.status(201).send({message: 'Регистрация прошла успешно!'});
+        res.status(201).send({
+          _id: user._id,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        });
       })
       .catch((err) => {
         if (err.name === 'ValidationError') {
@@ -22,7 +28,7 @@ module.exports.createUser = (req, res, next) => {
         if (err.code === 11000) {
           res.status(409).send({ message: 'Почта занята!' });
         }
-        next(err)
+        next(err);
       });
   });
 };
@@ -133,7 +139,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getExactUser = (req, res, next) => {
-  User.findOne(req.params.id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         return res
