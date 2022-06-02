@@ -4,7 +4,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.createCard = (req, res, next) => {
-  const owner = req.user._id;
+  const owner = req.user.id;
   const { name, link } = req.body;
   if (!name || !link) {
     throw new BadRequestError('Название или ссылка не введены!');
