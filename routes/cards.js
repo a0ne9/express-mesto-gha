@@ -48,11 +48,8 @@ router.post(
       link: Joi.string()
         .required()
         .pattern(
-
-            /(http|www|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:~+#-]*[\w@?^=%&~+#-])/,
-
+          /(http|www|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:~+#-]*[\w@?^=%&~+#-])/,
         ),
-      owner: Joi.object(),
     }),
   }),
   createCard,

@@ -1,13 +1,13 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const JWT_SECRET_KEY = 'qwerty';
+const AuthError = require('../errors/AuthError');
 
 const isAuthorised = (req, res, next) => {
   const auth = req.headers.authorization;
 
   if (!auth) {
-    res.status(401).send({ message: 'Требуется авторизация!' });
-    return;
+    throw new AuthError('Требуется авторизация!');
   }
   const token = auth.replace('Bearer ', '');
 
@@ -15,21 +15,10 @@ const isAuthorised = (req, res, next) => {
   try {
     decoded = jwt.verify(token, JWT_SECRET_KEY);
   } catch {
-    res.status(401).send({ message: 'Требуется авторизация!' });
+    throw new AuthError('Требуется авторизация!');
     return;
   }
-  return User.findOne({ _id: decoded.id })
-    .then((user) => {
-      if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден!' });
-        return;
-      }
-      req.user = user
-      next();
-    })
-    .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
-    });
+  req.user = payload;
+  next();
 };
-
 module.exports = { isAuthorised };

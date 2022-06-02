@@ -7,6 +7,7 @@ const { UserRouter } = require('./routes/users');
 const { CardsRouter } = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
 const { isAuthorised } = require('./middlewares/isAuthorised');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const limiter = rateLimit({
@@ -51,6 +52,10 @@ app.use(isAuthorised);
 app.use('/', UserRouter);
 app.use('/', CardsRouter);
 
+app.use('*', (req, res) => {
+  throw new NotFoundError('Страница не найдена!');
+});
+
 app.use(errors());
 
 app.use((err, req, res, _next) => {
@@ -60,9 +65,6 @@ app.use((err, req, res, _next) => {
   }
 
   res.status(500).send({ message: 'Ошибка на сервере' });
-});
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена!' });
 });
 
 app.listen(PORT);

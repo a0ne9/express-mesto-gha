@@ -1,16 +1,32 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { createToken } = require('../utils/jwt');
+const BadRequestError = require('../errors/BadRequestError');
+const DuplicateError = require('../errors/DuplicateError');
+const NotFoundError = require('../errors/NotFoundError');
+const AuthError = require('../errors/AuthError');
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
   if (!email || !password) {
-    res.status(400).send({ message: 'Почта или пароль введены неверно!' });
+    throw new BadRequestError('Почта или пароль введены неверно!');
   }
 
   bcrypt.hash(req.body.password, 10).then((hash) => {
-    User.create({ name, about, avatar, email, password: hash })
+    User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    })
       .then((user) => {
         res.status(201).send({
           _id: user._id,
@@ -22,11 +38,10 @@ module.exports.createUser = (req, res, next) => {
       })
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          res.status(400).send({ message: 'Имя или о себе введены неверно!' });
-          return;
+          next(new BadRequestError('Имя или о себе введены неверно!'));
         }
         if (err.code === 11000) {
-          res.status(409).send({ message: 'Почта занята!' });
+          next(new DuplicateError('Почта занята!'));
         }
         next(err);
       });
@@ -44,20 +59,18 @@ module.exports.getUsers = (req, res, next) => {
 module.exports.getUserByID = (req, res, next) => {
   const id = req.params.id;
   if (!id) {
-    res.status(400).send({ message: 'ID не был передан!' });
+    throw new BadRequestError('ID не был передан!');
   }
   User.findById(id)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден!' });
-        return;
+        throw new NotFoundError('Пользователь не найден!');
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Некорректный ID' });
-        return;
+        next(new BadRequestError('Некорректный ID'));
       }
       next(err);
     });
@@ -67,25 +80,22 @@ module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const id = req.user._id;
   if (!name || !about) {
-    res.status(400).send({ message: 'Имя или о себе введены некорректно!' });
-    return;
+    throw new BadRequestError('Имя или о себе введены некорректно!');
   }
   User.findByIdAndUpdate(
     id,
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден!' });
-        return;
+        throw new NotFoundError('Пользователь не найден!');
       }
       res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Имя или о себе введены неверно!' });
-        return;
+        next(new BadRequestError('Имя или о себе введены неверно!'));
       }
       next(err);
     });
@@ -95,14 +105,12 @@ module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const id = req.user._id;
   if (!avatar) {
-    res.status(400).send({ message: 'Аватар введен некорректно!' });
-    return;
+    throw new BadRequestError('Аватар введен некорректно!');
   }
   User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден!' });
-        return;
+        throw new NotFoundError('Пользователь не найден!');
       }
       res.status(200).send(user);
     })
@@ -113,22 +121,20 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).send({ message: 'Почта или пароль введены неверно!' });
+    throw new BadRequestError('Почта или пароль введены неверно!');
   }
 
   User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        res.status(401).send({ message: 'Почта или пароль введены неверно!' });
-        return;
+        throw new AuthError('Почта или пароль введены неверно!');
       }
       return { matched: bcrypt.compare(password, user.password), user };
     })
     .then(({ matched, user }) => {
       if (!matched) {
-        res.status(401).send({ message: 'Неправильные почта или пароль' });
-        return;
+        throw new AuthError('Неправильные почта или пароль');
       }
       return createToken({ id: user._id });
     })
@@ -142,10 +148,7 @@ module.exports.getExactUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь с данным _id не найден!' });
-        return;
+        throw new NotFoundError('Пользователь с данным _id не найден!');
       }
       res.status(200).send(user);
     })
