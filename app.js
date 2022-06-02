@@ -4,6 +4,10 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { UserRouter } = require('./routes/users');
 const { CardsRouter } = require('./routes/cards');
+const { createUser, login } = require('./controllers/users');
+const cookieParser = require('cookie-parser');
+const { isAuthorised } = require('./middlewares/isAuthorised');
+const { errors, celebrate, Joi } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 const limiter = rateLimit({
@@ -13,21 +17,46 @@ const limiter = rateLimit({
 
 const app = express();
 app.use(express.json());
-
+app.use(cookieParser());
 mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(helmet());
 app.use(limiter);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6284c8c1b4e4f0de38637095',
-  };
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required(),
+      password: Joi.string().required(),
+    }),
+  }),
+  login
+);
 
-  next();
-});
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required(),
+      password: Joi.string().required(),
+    }),
+  }),
+  createUser
+);
 
+app.use(isAuthorised);
 app.use('/', UserRouter);
 app.use('/', CardsRouter);
+
+app.use(errors());
+
+app.use((err, req, res, _next) => {
+  if (err.statusCode) {
+    return res.status(err.statusCode).send({ message: err.message });
+  }
+
+  res.status(500).send({ message: 'Ошибка на сервере' });
+});
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена!' });
 });
