@@ -47,7 +47,7 @@ module.exports.createUser = (req, res, next) => {
         }
         next(err);
       });
-  }).catch((err) => next(err));;
+  }).catch((err) => next(err));
 };
 
 module.exports.getUsers = (req, res, next) => {
