@@ -16,6 +16,7 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Название или ссылка введены неверно!'));
+        return;
       }
       next(err);
     });
@@ -89,6 +90,7 @@ module.exports.dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Некорректный ID'));
+        return;
       }
       next(err);
     });

@@ -47,7 +47,7 @@ module.exports.createUser = (req, res, next) => {
         }
         next(err);
       });
-  });
+  }).catch((err) => next(err));
 };
 
 module.exports.getUsers = (req, res, next) => {
@@ -73,6 +73,7 @@ module.exports.getUserByID = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Некорректный ID'));
+        return;
       }
       next(err);
     });
@@ -98,6 +99,7 @@ module.exports.updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Имя или о себе введены неверно!'));
+        return;
       }
       next(err);
     });
@@ -132,9 +134,9 @@ module.exports.login = (req, res, next) => {
       if (!user) {
         throw new AuthError('Почта или пароль введены неверно!');
       }
-      return { matched: bcrypt.compare(password, user.password), user };
+      return bcrypt.compare(password, user.password);
     })
-    .then(({ matched, user }) => {
+    .then((matched, user) => {
       if (!matched) {
         throw new AuthError('Неправильные почта или пароль');
       }
