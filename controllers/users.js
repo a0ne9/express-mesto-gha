@@ -134,9 +134,7 @@ module.exports.login = (req, res, next) => {
       if (!user) {
         throw new AuthError('Почта или пароль введены неверно!');
       }
-      return { matched: bcrypt.compare(password, user.password), user };
-    })
-    .then(({ matched, user }) => {
+      const matched = bcrypt.compare(password, user.password);
       if (!matched) {
         throw new AuthError('Неправильные почта или пароль');
       }
