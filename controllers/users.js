@@ -123,22 +123,22 @@ module.exports.updateAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-
   if (!email || !password) {
     throw new BadRequestError('Почта или пароль введены неверно!');
   }
-
   User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
         throw new AuthError('Почта или пароль введены неверно!');
       }
-      const matched = bcrypt.compare(password, user.password);
-      if (!matched) {
-        throw new AuthError('Неправильные почта или пароль');
-      }
-      return createToken({ id: user._id });
+
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          throw new AuthError('Неправильные почта или пароль');
+        }
+        return createToken({ id: user._id });
+      });
     })
     .then((token) => {
       res.status(200).send({ token });
