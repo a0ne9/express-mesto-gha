@@ -47,7 +47,7 @@ module.exports.createUser = (req, res, next) => {
         }
         next(err);
       });
-  }).catch((err) => next(err));
+  }).catch((err) => next(err));;
 };
 
 module.exports.getUsers = (req, res, next) => {
@@ -134,9 +134,9 @@ module.exports.login = (req, res, next) => {
       if (!user) {
         throw new AuthError('Почта или пароль введены неверно!');
       }
-      return bcrypt.compare(password, user.password);
+      return { matched: bcrypt.compare(password, user.password), user };
     })
-    .then((matched, user) => {
+    .then(({ matched, user }) => {
       if (!matched) {
         throw new AuthError('Неправильные почта или пароль');
       }
