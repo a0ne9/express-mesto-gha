@@ -58,14 +58,14 @@ module.exports.deleteCard = (req, res, next) => {
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user.id } },
     { new: true },
   )
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Передан несуществующий _id карточки!');
       }
-      res.status(200).send({ message: 'Лайк поставлен!' });
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -78,14 +78,14 @@ module.exports.likeCard = (req, res, next) => {
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user.id } },
     { new: true },
   )
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Передан несуществующий _id карточки!');
       }
-      res.status(200).send({ message: 'Лайк убран!' });
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

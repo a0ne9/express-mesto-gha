@@ -1,13 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { errors, celebrate, Joi } = require('celebrate');
 const { UserRouter } = require('./routes/users');
 const { CardsRouter } = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
 const { isAuthorised } = require('./middlewares/isAuthorised');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
+
+
 
 const { PORT = 3000 } = process.env;
 const limiter = rateLimit({
@@ -18,8 +22,10 @@ const limiter = rateLimit({
 const app = express();
 app.use(express.json());
 mongoose.connect('mongodb://localhost:27017/mestodb');
+app.use(cors())
 app.use(helmet());
 app.use(limiter);
+app.use(requestLogger);
 
 app.post(
   '/signin',
@@ -55,6 +61,8 @@ app.use('/', CardsRouter);
 app.use('*', () => {
   throw new NotFoundError('Страница не найдена!');
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 
